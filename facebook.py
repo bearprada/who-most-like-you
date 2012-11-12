@@ -89,7 +89,8 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
-        self.facebook_request("/me/home", self._on_stream,
+        #self.facebook_request("/me/home", self._on_stream,
+        self.facebook_request("/me?fields=posts", self._on_stream,
                               access_token=self.current_user["access_token"])
 
     def _on_stream(self, stream):
