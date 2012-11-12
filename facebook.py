@@ -104,7 +104,7 @@ class AuthLoginHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     def get(self):
         my_url = (self.request.protocol + "://" + self.request.host +
                   "/auth/login?next=" +
-                  tornado.escape.url_escape(self.get_argument("next", "/")))
+                  tornado.escape.url_escape(self.get_argument("next", "/likes")))
         if self.get_argument("code", False):
             self.get_authenticated_user(
                 redirect_uri=my_url,
