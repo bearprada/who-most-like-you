@@ -69,7 +69,6 @@ class LikeHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
 
     def _on_stream(self, posts):
         if posts is None:
-            # Session may have expired
             self.redirect("/auth/login")
             return
         # TODO process data
@@ -122,7 +121,7 @@ class AuthLoginHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         if not user:
             raise tornado.web.HTTPError(500, "Facebook auth failed")
         self.set_secure_cookie("user", tornado.escape.json_encode(user))
-        self.redirect(self.get_argument("next", "/"))
+        self.redirect(self.get_argument("next", "/likes"))
 
 
 class AuthLogoutHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
