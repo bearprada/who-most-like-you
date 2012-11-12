@@ -68,6 +68,7 @@ class LikeHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                               access_token=self.current_user["access_token"])
 
     def _on_stream(self, posts):
+        print "[like] post = "+str(posts)
         if posts is None:
             self.redirect("/auth/login")
             return
@@ -104,7 +105,7 @@ class AuthLoginHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     def get(self):
         my_url = (self.request.protocol + "://" + self.request.host +
                   "/auth/login?next=" +
-                  tornado.escape.url_escape(self.get_argument("next", "/likes")))
+                  tornado.escape.url_escape(self.get_argument("next", "/")))
         if self.get_argument("code", False):
             self.get_authenticated_user(
                 redirect_uri=my_url,
@@ -121,7 +122,7 @@ class AuthLoginHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         if not user:
             raise tornado.web.HTTPError(500, "Facebook auth failed")
         self.set_secure_cookie("user", tornado.escape.json_encode(user))
-        self.redirect(self.get_argument("next", "/likes"))
+        self.redirect(self.get_argument("next", "/"))
 
 
 class AuthLogoutHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
