@@ -97,6 +97,14 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             # Session may have expired
             self.redirect("/auth/login")
             return
+        result = {}
+        for p in posts["posts"]["data"]:
+            for l in p["likes"]["data"]:
+                if l["name"] in result:
+                    result[l["name"]] = 1
+                else:
+                    result[l["name"]] =  result[l["name"]] +1
+        print "result : " + str(result)
         self.render("stream.html", stream=stream)
 
 
