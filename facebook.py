@@ -98,7 +98,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             self.redirect("/auth/login")
             return
         result = {}
-        for p in posts["posts"]["data"]:
+        for p in stream["posts"]["data"]:
             for l in p["likes"]["data"]:
                 if l["name"] in result:
                     result[l["name"]] = 1
