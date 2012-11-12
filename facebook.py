@@ -79,7 +79,7 @@ class LikeHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 if l["name"] in result:
                     result[l["name"]] = 1
                 else:
-                    result[l["name"]] ++  
+                    result[l["name"]] =  result[l["name"]] +1
         print "result : " + str(result)     
         # TODO pagination ... 
         self.render("likes.html", data_like=result)
