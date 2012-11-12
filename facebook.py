@@ -35,6 +35,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", MainHandler),
+            (r"/likes", LikeHandler),
             (r"/auth/login", AuthLoginHandler),
             (r"/auth/logout", AuthLogoutHandler),
         ]
@@ -58,6 +59,30 @@ class BaseHandler(tornado.web.RequestHandler):
         user_json = self.get_secure_cookie("user")
         if not user_json: return None
         return tornado.escape.json_decode(user_json)
+
+class LikeHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
+    @tornado.web.authenticated
+    @tornado.web.asynchronous
+    def get(self):
+        self.facebook_request("/me?fields=id,name,posts", self._on_stream,
+                              access_token=self.current_user["access_token"])
+
+    def _on_stream(self, posts):
+        if posts is None:
+            # Session may have expired
+            self.redirect("/auth/login")
+            return
+        # TODO process data
+        result = {}
+        for p in posts["posts"]["data"]:
+            for l in p["likes"]["data"]:
+                if l["name"] in result:
+                    result[l["name"]] = 1
+                else:
+                    result[l["name"]] ++  
+        print "result : " + str(result)     
+        # TODO pagination ... 
+        self.render("likes.html", data_like=result)
 
 
 class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
