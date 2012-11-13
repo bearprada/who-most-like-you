@@ -96,7 +96,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     def get(self):
         print "[debug] user = " + str(self.current_user) 
         #self.facebook_request("/me/home", self._on_stream,
-        self.facebook_request("/me?fields=posts", self.async_callback(self._on_like),
+        self.facebook_request("/me/posts", self.async_callback(self._on_like),
                               access_token=self.current_user["access_token"])
 
     def _on_like(self,like):
