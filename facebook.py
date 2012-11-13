@@ -21,6 +21,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
+import json
 
 from tornado.options import define, options
 
@@ -60,36 +61,6 @@ class BaseHandler(tornado.web.RequestHandler):
         if not user_json: return None
         return tornado.escape.json_decode(user_json)
 
-class LikeHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
-    @tornado.web.authenticated
-    @tornado.web.asynchronous
-    def get(self):
-        self.facebook_request("/me?fields=id,name,posts", self._on_stream,
-                              access_token=self.current_user["access_token"])
-    def _on_auth(self, user):
-        if not user:
-            raise tornado.web.HTTPError(500, "Facebook auth failed")
-        print "[on auth] get user : " + str(user)
-        # Save the user using, e.g., set_secure_cookie()    
-
-    def _on_stream(self, posts):
-        print "[like] post = "+str(posts)
-        if posts is None:
-            self.redirect("/auth/login")
-            return
-        # TODO process data
-        r = {}
-        for p in posts["posts"]["data"]:
-            for l in p["likes"]["data"]:
-                if l["name"] in r:
-                    r[l["name"]] = 1
-                else:
-                    r[l["name"]] =  r[l["name"]] +1
-        print "result : " + str(r)     
-        # TODO pagination ... 
-        self.render("likes.html", data_like=result)
-
-
 class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
@@ -106,6 +77,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             return
         
         r = {}
+        o = {"name":"likes" , "children":[]}
         #userName = []
         #count = []
         for p in likes["data"]:
@@ -117,8 +89,25 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 else:
                     r[fid] = 1
         print "result : " + str(r)
-        
-        self.render("likes.html")
+        for k in r:
+            o["children"].append({"name":str(k) , "size":r[k]})
+        print "json : " + str(o)
+        self.render("likes.html" , likes_json=json.dump(o)) #fixme
+
+"""
+def result = [name:"emotions",children:[]]
+        EmotionGroup.list().each{ eg->
+            def childs = []
+            eg.emotions.each{ e->
+                int c = Feed.countByMostEmotion(e)
+                if(c>10)
+                    childs.add([name:e.name,size:c])
+            }
+            if(childs.size()>0)
+                result.children.add([name:eg.name,children:childs])
+        }
+
+"""
 
     def _on_stream(self, stream):
         if stream is None:
