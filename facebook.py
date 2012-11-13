@@ -108,10 +108,10 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         result = {}
         for p in likes["data"]:
             for l in p["likes"]["data"]:
-                if l["name"] in result:
-                    result[l["name"]] = 1
+                if l["id"] in result:
+                    result[l["id"]] = 1
                 else:
-                    result[l["name"]] =  result[l["name"]] +1
+                    result[l["id"]] =  result[l["id"]] +1
         print "result : " + str(result)
         
         self.render("likes.html")
