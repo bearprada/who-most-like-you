@@ -64,7 +64,6 @@ class LikeHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
-        if 
         self.facebook_request("/me?fields=id,name,posts", self._on_stream,
                               access_token=self.current_user["access_token"])
     def _on_auth(self, user):
