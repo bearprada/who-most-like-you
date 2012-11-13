@@ -99,7 +99,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         self.facebook_request("/me/posts", self.async_callback(self._on_like),
                               access_token=self.current_user["access_token"])
 
-    def _on_like(self,like):
+    def _on_like(self,likes):
         print "get likes : " + str(likes)
         if likes is None:
             self.redirect("/auth/login")
