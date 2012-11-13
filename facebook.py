@@ -80,7 +80,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             o = {'name':'likes' , 'children':[]}
             for p in likes["data"]:
                 for l in p["likes"]["data"]:
-                    fid = l["id"]
+                    fid = l["name"]
                     if fid in r:
                     #if fid in userName:
                         r[fid] = r[fid] +1
