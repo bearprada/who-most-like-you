@@ -64,8 +64,14 @@ class LikeHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
+        if 
         self.facebook_request("/me?fields=id,name,posts", self._on_stream,
                               access_token=self.current_user["access_token"])
+    def _on_auth(self, user):
+        if not user:
+            raise tornado.web.HTTPError(500, "Facebook auth failed")
+        print "[on auth] get user : " + str(user)
+        # Save the user using, e.g., set_secure_cookie()    
 
     def _on_stream(self, posts):
         print "[like] post = "+str(posts)
@@ -89,9 +95,16 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
-        self.facebook_request("/me/home", self._on_stream,
-        #self.facebook_request("/me?fields=posts", self._on_stream,
+        #self.facebook_request("/me/home", self._on_stream,
+        self.facebook_request("/me?fields=posts", self._on_stream,
                               access_token=self.current_user["access_token"])
+
+    def _on_like(self,like):
+        if like is None:
+            self.redirect("/auth/login")
+            return
+        print "get likes : " + str(like)
+        self.render("likes.html")
 
     def _on_stream(self, stream):
         if stream is None:
