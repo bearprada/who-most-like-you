@@ -90,7 +90,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                     r[fid] = 1
         print "result : " + str(r)
         for k in r:
-            o["children"].append({"name":str(k) , "size":r[k]})
+            o["children"].append({"name":k , "size":r[k]})
         print "json : " + str(o)
         self.render("likes.html" , likes_json=json.dump(o)) #fixme
     def _on_stream(self, stream):
