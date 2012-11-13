@@ -78,14 +78,14 @@ class LikeHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             self.redirect("/auth/login")
             return
         # TODO process data
-        result = {}
+        r = {}
         for p in posts["posts"]["data"]:
             for l in p["likes"]["data"]:
-                if l["name"] in result:
-                    result[l["name"]] = 1
+                if l["name"] in r:
+                    r[l["name"]] = 1
                 else:
-                    result[l["name"]] =  result[l["name"]] +1
-        print "result : " + str(result)     
+                    r[l["name"]] =  r[l["name"]] +1
+        print "result : " + str(r)     
         # TODO pagination ... 
         self.render("likes.html", data_like=result)
 
@@ -105,15 +105,18 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             self.redirect("/auth/login")
             return
         
-        result = {}
+        r = {}
+        #userName = []
+        #count = []
         for p in likes["data"]:
             for l in p["likes"]["data"]:
-                fid = int(l["id"])
-                if fid in result:
-                    result[fid] = 1
+                fid = l["name"]
+                if fid in r:
+                #if fid in userName:
+                    r[fid] = r[fid] +1
                 else:
-                    result[fid] =  result[fid] +1
-        print "result : " + str(result)
+                    r[fid] = 1
+        print "result : " + str(r)
         
         self.render("likes.html")
 
