@@ -63,8 +63,8 @@ var svg = d3.select("#body").append("div")
   .append("svg:g")
     .attr("transform", "translate(.5,.5)");
 
-//d3.json("{{ likes_json }}", function(data) {
-function initData(data){
+d3.json("", function(data) {
+//function initData(data){
   node = root = data;
  // alert("get json");
   var nodes = treemap.nodes(root)
@@ -96,11 +96,8 @@ function initData(data){
     treemap.value(this.value == "size" ? size : count).nodes(root);
     zoom(node);
   });
-//});
-}
-
-var jsonData = "{{ likes_json }}";
-initData(jsonData);
+});
+//}
 
 function size(d) {
   return d.size;

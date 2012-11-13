@@ -70,26 +70,28 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                               access_token=self.current_user["access_token"])
 
     def _on_like(self,likes):
-        print "get likes : " + str(likes)
-        # todo error code
-        r = {}
-        o = {"name":"likes" , "children":[]}
-        #userName = []
-        #count = []
-        for p in likes["data"]:
-            for l in p["likes"]["data"]:
-                fid = l["id"]
-                if fid in r:
-                #if fid in userName:
-                    r[fid] = r[fid] +1
-                else:
-                    r[fid] = 1
-        #print "result : " + str(r)
-        for k in r:
-                o["children"].append({"name":k , "size":r[k]})
-        print "json : " + str(o)
-        self.set_header('Content-Type', 'application/json')
-        self.write(tornado.escape.json_encode(o))
+        print " ------------ get likes : " + str(likes)
+        if likes is None:
+            self.set_header('Content-Type', 'application/json')
+            e = {"error":"you are not login at facebook"}
+            self.write(tornado.escape.json_encode(e))
+        else:
+            r = {}
+            o = {"name":"likes" , "children":[]}
+            for p in likes["data"]:
+                for l in p["likes"]["data"]:
+                    fid = l["id"]
+                    if fid in r:
+                    #if fid in userName:
+                        r[fid] = r[fid] +1
+                    else:
+                        r[fid] = 1
+            #print "result : " + str(r)
+            for k in r:
+                    o["children"].append({"name":k , "size":r[k]})
+            print "json : " + str(o)
+            self.set_header('Content-Type', 'application/json')
+            self.write(tornado.escape.json_encode(o))
 
 class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
