@@ -89,8 +89,9 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             #print "result : " + str(r)
             for k in r:
                 o["children"].append({'name':k , 'size':r[k]})
-            print "json : " + str(o)
+            #print "json : " + str(o)
             self.write(tornado.escape.json_encode(o))
+        self.finish()
 
 class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
