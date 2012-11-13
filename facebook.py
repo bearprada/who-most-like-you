@@ -36,7 +36,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", MainHandler),
-            #(r"/likes", LikeHandler),
+            (r"/locki", ReporterHandler),
             (r"/auth/login", AuthLoginHandler),
             (r"/auth/logout", AuthLogoutHandler),
         ]
@@ -60,6 +60,36 @@ class BaseHandler(tornado.web.RequestHandler):
         user_json = self.get_secure_cookie("user")
         if not user_json: return None
         return tornado.escape.json_decode(user_json)
+
+class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
+    @tornado.web.authenticated
+    @tornado.web.asynchronous
+    def get(self):
+        print "[debug] user = " + str(self.current_user) 
+        self.facebook_request("/me/posts", self.async_callback(self._on_like),
+                              access_token=self.current_user["access_token"])
+
+    def _on_like(self,likes):
+        print "get likes : " + str(likes)
+        # todo error code
+        r = {}
+        o = {"name":"likes" , "children":[]}
+        #userName = []
+        #count = []
+        for p in likes["data"]:
+            for l in p["likes"]["data"]:
+                fid = l["id"]
+                if fid in r:
+                #if fid in userName:
+                    r[fid] = r[fid] +1
+                else:
+                    r[fid] = 1
+        #print "result : " + str(r)
+        for k in r:
+                o["children"].append({"name":k , "size":r[k]})
+        print "json : " + str(o)
+        self.set_header('Content-Type', 'application/json')
+        self.write(tornado.escape.json_encode(o))
 
 class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
@@ -94,7 +124,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             if count < 20 :
                 o["children"].append({"name":k , "size":r[k]})
                 count = count+1
-        print "json : " + str(o)
+        #print "json : " + str(o)
         self.render("likes.html" , likes_json=tornado.escape.json_encode(o)) 
 
     def _on_stream(self, stream):
