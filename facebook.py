@@ -36,7 +36,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", MainHandler),
-            (r"/likes", LikeHandler),
+            #(r"/likes", LikeHandler),
             (r"/auth/login", AuthLoginHandler),
             (r"/auth/logout", AuthLogoutHandler),
         ]
@@ -93,22 +93,6 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             o["children"].append({"name":str(k) , "size":r[k]})
         print "json : " + str(o)
         self.render("likes.html" , likes_json=json.dump(o)) #fixme
-
-"""
-def result = [name:"emotions",children:[]]
-        EmotionGroup.list().each{ eg->
-            def childs = []
-            eg.emotions.each{ e->
-                int c = Feed.countByMostEmotion(e)
-                if(c>10)
-                    childs.add([name:e.name,size:c])
-            }
-            if(childs.size()>0)
-                result.children.add([name:eg.name,children:childs])
-        }
-
-"""
-
     def _on_stream(self, stream):
         if stream is None:
             # Session may have expired
