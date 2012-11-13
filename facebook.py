@@ -82,7 +82,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         #count = []
         for p in likes["data"]:
             for l in p["likes"]["data"]:
-                fid = l["name"]
+                fid = l["id"]
                 if fid in r:
                 #if fid in userName:
                     r[fid] = r[fid] +1
