@@ -100,13 +100,13 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                               access_token=self.current_user["access_token"])
 
     def _on_like(self,like):
-        print "get likes : " + str(like)
-        if like is None:
+        print "get likes : " + str(likes)
+        if likes is None:
             self.redirect("/auth/login")
             return
         
         result = {}
-        for p in stream["data"]:
+        for p in likes["data"]:
             for l in p["likes"]["data"]:
                 if l["name"] in result:
                     result[l["name"]] = 1
