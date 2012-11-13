@@ -105,6 +105,15 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             self.redirect("/auth/login")
             return
         
+        result = {}
+        for p in stream["data"]:
+            for l in p["likes"]["data"]:
+                if l["name"] in result:
+                    result[l["name"]] = 1
+                else:
+                    result[l["name"]] =  result[l["name"]] +1
+        print "result : " + str(result)
+        
         self.render("likes.html")
 
     def _on_stream(self, stream):
@@ -112,16 +121,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             # Session may have expired
             self.redirect("/auth/login")
             return
-        """
-        result = {}
-        for p in stream["posts"]["data"]:
-            for l in p["likes"]["data"]:
-                if l["name"] in result:
-                    result[l["name"]] = 1
-                else:
-                    result[l["name"]] =  result[l["name"]] +1
-        print "result : " + str(result)
-        """
+        
         self.render("stream.html", stream=stream)
 
 
