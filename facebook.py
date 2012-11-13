@@ -92,7 +92,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         for k in r:
             o["children"].append({"name":k , "size":r[k]})
         print "json : " + str(o)
-        self.render("likes.html" , likes_json=json.dump(o)) #fixme
+        self.render("likes.html" , likes_json=json.dumps(o)) 
     def _on_stream(self, stream):
         if stream is None:
             # Session may have expired
