@@ -89,8 +89,8 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
-        #self.facebook_request("/me/home", self._on_stream,
-        self.facebook_request("/me?fields=posts", self._on_stream,
+        self.facebook_request("/me/home", self._on_stream,
+        #self.facebook_request("/me?fields=posts", self._on_stream,
                               access_token=self.current_user["access_token"])
 
     def _on_stream(self, stream):
@@ -98,6 +98,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             # Session may have expired
             self.redirect("/auth/login")
             return
+        """
         result = {}
         for p in stream["posts"]["data"]:
             for l in p["likes"]["data"]:
@@ -106,6 +107,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 else:
                     result[l["name"]] =  result[l["name"]] +1
         print "result : " + str(result)
+        """
         self.render("stream.html", stream=stream)
 
 
