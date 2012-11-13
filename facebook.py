@@ -89,8 +89,11 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 else:
                     r[fid] = 1
         #print "result : " + str(r)
+        count =0
         for k in r:
-            o["children"].append({"name":k , "size":r[k]})
+            if count < 20 :
+                o["children"].append({"name":k , "size":r[k]})
+                count = count+1
         print "json : " + str(o)
         self.render("likes.html" , likes_json=tornado.escape.json_encode(o)) 
 
