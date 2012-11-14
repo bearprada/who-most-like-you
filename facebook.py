@@ -101,8 +101,9 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             next = likes["paging"].get('next',None)
             print "[PAGING] next = " + next 
             if  next != None:
-                self.facebook_request("/me/posts?until="+self._get_url_param(next,'until')[0], 
+                self.facebook_request("/"+str(self.current_user['id'])+"/posts", 
                               self._on_like,
+                              post_args={'until':self._get_url_param(next,'until')[0]},
                               access_token=self.current_user["access_token"])
             else:
                 self.write(tornado.escape.json_encode(self.o))
