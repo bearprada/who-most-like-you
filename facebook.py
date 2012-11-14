@@ -106,7 +106,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 http = httplib2.Http()
                 response, content = http.request(next, 'GET')
                 print "[PAGING] result " + str(response) 
-                self._on_like(content)
+                self._on_like(tornado.escape.json_decode(content))
                 #self.facebook_request("/"+str(self.current_user['id'])+"/posts", 
                 #              callback=self._on_like,
                 #              until=self._get_url_param(next,'until')[0],
