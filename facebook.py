@@ -112,7 +112,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 for p in likes["data"]:
                     if p.get('likes',None) != None:
                         for l in p["likes"]["data"]:
-                            fid = l["name"]
+                            fid = l["id"]
                             if fid in r:
                                 r[fid] = r[fid] +1
                             else:
