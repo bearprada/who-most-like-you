@@ -89,13 +89,14 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             r = {}
             print "[on like] size " + str(len(likes["data"]))
             for p in likes["data"]:
-                for l in p["likes"]["data"]:
-                    fid = l["name"]
-                    if fid in r:
-                    #if fid in userName:
-                        r[fid] = r[fid] +1
-                    else:
-                        r[fid] = 1
+                if p['likes'] != None:
+                    for l in p["likes"]["data"]:
+                        fid = l["name"]
+                        if fid in r:
+                        #if fid in userName:
+                            r[fid] = r[fid] +1
+                        else:
+                            r[fid] = 1
             #print "result : " + str(r)
             for k in r:
                 self.o["children"].append({'name':k , 'size':r[k]})
