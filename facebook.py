@@ -74,7 +74,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         self.o = {'name':'likes' , 'children':[]}
         self.set_header('Content-Type', 'application/json')
 
-        self.limit = 10
+        self.limit = 6
         self.count = 0
 
     def _get_url_param(self,url,key):
@@ -96,7 +96,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
 
     def _output(self):
         # todo id transfer to name 
-        self._trans_name(self.o)
+        #self._trans_name(self.o)
         self.write(tornado.escape.json_encode(self.o))
         self.finish()
 
@@ -112,13 +112,13 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 for p in likes["data"]:
                     if p.get('likes',None) != None:
                         for l in p["likes"]["data"]:
-                            fid = l["id"]
+                            fid = l["name"]
                             if fid in r:
                                 r[fid] = r[fid] +1
                             else:
                                 r[fid] = 1
                 for k in r:
-                    self.o["children"].append({'name':k , 'id' : k, 'size':r[k]})
+                    self.o["children"].append({'name':k , 'size':r[k]})
 
                 self.count = self.count+1
 
