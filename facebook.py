@@ -22,6 +22,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import json
+import urlparse
 
 from tornado.options import define, options
 
@@ -68,16 +69,22 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         print "[debug] user = " + str(self.current_user) 
         self.facebook_request("/me/posts", self._on_like,
                               access_token=self.current_user["access_token"])
+        self.o = {'name':'likes' , 'children':[]}
 
+    def _get_url_param(self,url,key):
+        parsed = urlparse.urlparse(url)
+        return urlparse.parse_qs(parsed.query)[key]
+
+    @tornado.web.asynchronous
     def _on_like(self,likes):
         print " ------------ get likes : " + str(likes)
         self.set_header('Content-Type', 'application/json')
         if likes is None:
             e = {'error':'you are not login at facebook'}
             self.write(tornado.escape.json_encode(e))
+            self.finish()
         else:
             r = {}
-            o = {'name':'likes' , 'children':[]}
             for p in likes["data"]:
                 for l in p["likes"]["data"]:
                     fid = l["name"]
@@ -88,10 +95,19 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                         r[fid] = 1
             #print "result : " + str(r)
             for k in r:
-                o["children"].append({'name':k , 'size':r[k]})
+                self.o["children"].append({'name':k , 'size':r[k]})
             #print "json : " + str(o)
-            self.write(tornado.escape.json_encode(o))
-        self.finish()
+            next = likes["paging"].get('next',None)
+            print "[PAGING] next = " + next 
+            if  next != None:
+                self.facebook_request("/me/posts", 
+                              self._on_like,
+                              post_args={"until":self._get_url_param(next,'until')},
+                              access_token=self.current_user["access_token"])
+            else:
+                self.write(tornado.escape.json_encode(self.o))
+                self.finish()
+        
 
 class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
@@ -101,40 +117,20 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         #self.facebook_request("/me/home", self._on_stream,
         self.facebook_request("/me/posts", self.async_callback(self._on_like),
                               access_token=self.current_user["access_token"])
+        #self._on_like()
 
     def _on_like(self,likes):
         print "get likes : " + str(likes)
         if likes is None:
             self.redirect("/auth/login")
             return
-        
-        r = {}
-        o = {"name":"likes" , "children":[]}
-        #userName = []
-        #count = []
-        for p in likes["data"]:
-            for l in p["likes"]["data"]:
-                fid = l["id"]
-                if fid in r:
-                #if fid in userName:
-                    r[fid] = r[fid] +1
-                else:
-                    r[fid] = 1
-        #print "result : " + str(r)
-        count =0
-        for k in r:
-            if count < 20 :
-                o["children"].append({"name":k , "size":r[k]})
-                count = count+1
-        #print "json : " + str(o)
-        self.render("likes.html" , likes_json=tornado.escape.json_encode(o)) 
+        self.render("likes.html") 
 
     def _on_stream(self, stream):
         if stream is None:
             # Session may have expired
             self.redirect("/auth/login")
             return
-        
         self.render("stream.html", stream=stream)
 
 
