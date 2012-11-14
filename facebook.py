@@ -77,7 +77,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
 
     @tornado.web.asynchronous
     def _on_like(self,likes):
-        print " ------------ get likes : " + str(likes)
+        #print " ------------ get likes : " + str(likes)
         self.set_header('Content-Type', 'application/json')
         if likes is None:
             #if(self.o['children'])
@@ -101,9 +101,8 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             next = likes["paging"].get('next',None)
             print "[PAGING] next = " + next 
             if  next != None:
-                self.facebook_request("/me/posts", 
+                self.facebook_request("/me/posts?until="+self._get_url_param(next,'until'), 
                               self._on_like,
-                              post_args={"until":self._get_url_param(next,'until')},
                               access_token=self.current_user["access_token"])
             else:
                 self.write(tornado.escape.json_encode(self.o))
