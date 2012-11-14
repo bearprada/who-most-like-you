@@ -23,6 +23,8 @@ import tornado.options
 import tornado.web
 import json
 import urlparse
+import urllib
+import httplib2
 
 from tornado.options import define, options
 
@@ -100,11 +102,14 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             #print "json : " + str(o)
             next = likes["paging"].get('next',None)
             print "[PAGING] next = " + next 
-            if  next != None:
-                self.facebook_request("/"+str(self.current_user['id'])+"/posts", 
-                              callback=self._on_like,
-                              until=self._get_url_param(next,'until')[0],
-                              access_token=self.current_user["access_token"])
+            if next != None:
+                http = httplib2.Http()
+                response, content = http.request(next, 'GET')
+                self._on_like(content)
+                #self.facebook_request("/"+str(self.current_user['id'])+"/posts", 
+                #              callback=self._on_like,
+                #              until=self._get_url_param(next,'until')[0],
+                #              access_token=self.current_user["access_token"])
             else:
                 self.write(tornado.escape.json_encode(self.o))
                 self.finish()
