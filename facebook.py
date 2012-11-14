@@ -81,15 +81,27 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         parsed = urlparse.urlparse(url)
         return urlparse.parse_qs(parsed.query)[key]
 
+#https://graph.facebook.com/801377271?method=GET&format=json&access_token=AAACEd...
+    def __get_fb_name(self,id):
+        http = httplib2.Http()
+        url = 'https://graph.facebook.com/'+id+'?method=GET&format=json&access_token='+self.current_user["access_token"]
+        print "[get fb name ] url " + url
+        response, content = http.request(url, 'GET')
+        jj = tornado.escape.json_decode(content)
+        return jj['name']
+
+    def _trans_name(self,jn):
+        for j in jn['children']:
+            j['name'] = self.__get_fb_name(j['id'])
+
     def _output(self):
+        # todo id transfer to name 
+        self._trans_name(self.o)
         self.write(tornado.escape.json_encode(self.o))
         self.finish()
 
     def _on_like(self,likes):
-        #print " ------------ get likes : " + str(likes)
         if likes is None:
-            #if(self.o['children'])
-            #e = {'error':'you are not login at facebook'}
             self._output()
         else:
             if self.count >= self.limit:
@@ -100,17 +112,16 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 for p in likes["data"]:
                     if p.get('likes',None) != None:
                         for l in p["likes"]["data"]:
-                            fid = l["name"]
+                            fid = l["id"]
                             if fid in r:
-                            #if fid in userName:
                                 r[fid] = r[fid] +1
                             else:
                                 r[fid] = 1
-                #print "result : " + str(r)
                 for k in r:
-                    self.o["children"].append({'name':k , 'size':r[k]})
-                #print "json : " + str(o)
+                    self.o["children"].append({'name':k , 'id' : k, 'size':r[k]})
+
                 self.count = self.count+1
+
                 next = likes["paging"].get('next',None)
                 print "[PAGING] next = " + next 
                 if next != None:
@@ -118,10 +129,6 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                     response, content = http.request(next, 'GET')
                     print "[PAGING] result " + str(response) 
                     self._on_like(tornado.escape.json_decode(content))
-                    #self.facebook_request("/"+str(self.current_user['id'])+"/posts", 
-                    #              callback=self._on_like,
-                    #              until=self._get_url_param(next,'until')[0],
-                    #              access_token=self.current_user["access_token"])
                 else:
                     self._output()
 
