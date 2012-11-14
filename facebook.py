@@ -81,7 +81,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         parsed = urlparse.urlparse(url)
         return urlparse.parse_qs(parsed.query)[key]
 
-    def __output(self):
+    def _output(self):
         self.write(tornado.escape.json_encode(self.o))
         self.finish()
 
@@ -90,10 +90,10 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         if likes is None:
             #if(self.o['children'])
             #e = {'error':'you are not login at facebook'}
-            __output()
+            self._output()
         else:
             if self.count >= self.limit:
-                __output()
+                self._output()
             else:
                 r = {}
                 print "[on like] size " + str(len(likes["data"]))
@@ -123,7 +123,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                     #              until=self._get_url_param(next,'until')[0],
                     #              access_token=self.current_user["access_token"])
                 else:
-                    __output()
+                    self._output()
 
 class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
