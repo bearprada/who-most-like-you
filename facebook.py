@@ -72,15 +72,14 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         self.facebook_request("/me/posts", self._on_like,
                               access_token=self.current_user["access_token"])
         self.o = {'name':'likes' , 'children':[]}
+        self.set_header('Content-Type', 'application/json')
 
     def _get_url_param(self,url,key):
         parsed = urlparse.urlparse(url)
         return urlparse.parse_qs(parsed.query)[key]
 
-    @tornado.web.asynchronous
     def _on_like(self,likes):
         #print " ------------ get likes : " + str(likes)
-        self.set_header('Content-Type', 'application/json')
         if likes is None:
             #if(self.o['children'])
             #e = {'error':'you are not login at facebook'}
@@ -88,6 +87,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             self.finish()
         else:
             r = {}
+            print "[on like] size " + str(len(likes["data"]))
             for p in likes["data"]:
                 for l in p["likes"]["data"]:
                     fid = l["name"]
@@ -105,7 +105,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             if next != None:
                 http = httplib2.Http()
                 response, content = http.request(next, 'GET')
-                print "[PAGING] result " + str(response) + " >>>" + str(content)
+                print "[PAGING] result " + str(response) 
                 self._on_like(content)
                 #self.facebook_request("/"+str(self.current_user['id'])+"/posts", 
                 #              callback=self._on_like,
