@@ -80,8 +80,9 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         print " ------------ get likes : " + str(likes)
         self.set_header('Content-Type', 'application/json')
         if likes is None:
-            e = {'error':'you are not login at facebook'}
-            self.write(tornado.escape.json_encode(e))
+            #if(self.o['children'])
+            #e = {'error':'you are not login at facebook'}
+            self.write(tornado.escape.json_encode(self.o))
             self.finish()
         else:
             r = {}
@@ -113,14 +114,14 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
-        print "[debug] user = " + str(self.current_user) 
+        #print "[debug] user = " + str(self.current_user) 
         #self.facebook_request("/me/home", self._on_stream,
         self.facebook_request("/me/posts", self.async_callback(self._on_like),
                               access_token=self.current_user["access_token"])
         #self._on_like()
 
     def _on_like(self,likes):
-        print "get likes : " + str(likes)
+        #print "get likes : " + str(likes)
         if likes is None:
             self.redirect("/auth/login")
             return
