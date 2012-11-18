@@ -70,7 +70,7 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     def get(self):
         query = '{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
                 '"like_ids":"SELECT name,sex FROM user WHERE uid IN (SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids))"}'
-        self.facebook_request("/fql?q="+query, self._hadler_result,
+        self.facebook_request("/fql?q="+query, self._handle_result,
                               access_token=self.current_user["access_token"])
         self.o = {'name':'likes' , 'children':[ {'name':'female','children':[]} ,  {'name':'male','children':[]}  ]}
         self.set_header('Content-Type', 'application/json')
