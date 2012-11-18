@@ -101,7 +101,7 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                     self.o['children'][1]['children'].append({'name':k , 'size':m_r[k]})
                 for k in f_r:
                     self.o['children'][0]['children'].append({'name':k , 'size':f_r[k]})
-                self._output()
+            self._output()
 
     def _output(self):
         self.write(tornado.escape.json_encode(self.o))
