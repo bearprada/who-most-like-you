@@ -71,7 +71,8 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         #query = tornado.escape.url_escape('{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
         #        '"like_ids":"SELECT name,sex FROM user WHERE uid IN (SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids))"}')
         query = '{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
-                '"like_ids":"SELECT name,sex FROM user WHERE uid IN (SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids))"}'
+                '"uids":"SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids)"' +\
+                '"like_ids":"SELECT name,sex,uid FROM user WHERE uid IN (SELECT user_id FROM #uids)"}'
         self.facebook_request("/fql", self._handle_result,
                               access_token=self.current_user["access_token"],
                               q=query)
@@ -84,8 +85,15 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         else:
             m_r = {}
             f_r = {}
+            rr = {}
             for p in r['data'][1]['fql_result_set']:
-                fid = p['name']
+                fid = p['user_id']
+                if fid in rr:
+                    rr[fid] = rr[fid] + 1
+                else:
+                    rr[fid] = 1
+
+                """
                 if p['sex'] == 'female':
                     if fid in f_r:
                         f_r[fid] = f_r[fid] + 1 
@@ -96,14 +104,33 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                         m_r[fid] = m_r[fid] + 1 
                     else:
                         m_r[fid] = 1
-
-                for k in m_r:
-                    if m_r[k]>1:
-                        self.o['children'][1]['children'].append({'name':k , 'size':m_r[k]})
-                for k in f_r:
-                    if f_r[k]>1:
-                        self.o['children'][0]['children'].append({'name':k , 'size':f_r[k]})
+                """
+            for u in rr:
+                size = rr[u]
+                if size >5:
+                    user = self._get_user_info(r['data'][2]['fql_result_set'],u)
+                    if user is None:
+                        pass
+                    else:
+                        if user['sex'] == 'female':
+                            self.o['children'][0]['children'].append({'name':user['name'] , 'size':size})        
+                        else:
+                            self.o['children'][1]['children'].append({'name':user['name'] , 'size':size})
+            """
+            for k in m_r:
+                if m_r[k]>5:
+                    self.o['children'][1]['children'].append({'name':k , 'size':m_r[k]})
+            for k in f_r:
+                if f_r[k]>5:
+                    self.o['children'][0]['children'].append({'name':k , 'size':f_r[k]})
+            """
             self._output()
+
+    def _get_user_info(self,user_json,uid):
+        for j in user_json:
+            if j['uid'] == uid:
+                return j
+        return None
 
     def _output(self):
         self.write(tornado.escape.json_encode(self.o))
