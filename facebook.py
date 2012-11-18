@@ -85,7 +85,7 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             m_r = {}
             f_r = {}
             for p in r['data'][1]['fql_result_set']:
-                fid = p['uid']
+                fid = p['name']
                 if p['sex'] == 'female':
                     if fid in f_r:
                         f_r[fid] = f_r[fid] + 1 
