@@ -71,7 +71,7 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         #query = tornado.escape.url_escape('{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
         #        '"like_ids":"SELECT name,sex FROM user WHERE uid IN (SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids))"}')
         query = '{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
-                '"uids":"SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids)"' +\
+                '"uids":"SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids)",' +\
                 '"like_ids":"SELECT name,sex,uid FROM user WHERE uid IN (SELECT user_id FROM #uids)"}'
         self.facebook_request("/fql", self._handle_result,
                               access_token=self.current_user["access_token"],
