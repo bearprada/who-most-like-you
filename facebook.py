@@ -39,7 +39,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", MainHandler),
-            (r"/locki", ReporterHandler),
+            (r"/locki", FqlReporterHandler),
             (r"/auth/login", AuthLoginHandler),
             (r"/auth/logout", AuthLogoutHandler),
         ]
@@ -63,6 +63,46 @@ class BaseHandler(tornado.web.RequestHandler):
         user_json = self.get_secure_cookie("user")
         if not user_json: return None
         return tornado.escape.json_decode(user_json)
+
+class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
+    @tornado.web.authenticated
+    @tornado.web.asynchronous
+    def get(self):
+        query = '{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
+                '"like_ids":"SELECT name,sex FROM user WHERE uid IN (SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids))"}'
+        self.facebook_request("/fql?q="+query, self._hadler_result,
+                              access_token=self.current_user["access_token"])
+        self.o = {'name':'likes' , 'children':[ {'name':'female','children':[]} ,  {'name':'male','children':[]}  ]}
+        self.set_header('Content-Type', 'application/json')
+
+    def _handle_result(self, r):
+        if r is None:
+            self._output()
+        else:
+            m_r = {}
+            f_r = {}
+            for p in r['data'][1]['fql_result_set']:
+                fid = p['uid']
+                if p['sex'] == 'female':
+                    if fid in f_r:
+                        f_r[fid] = f_r[fid] + 1 
+                    else:
+                        f_r[fid] = 1 
+                else:
+                    if fid in m_r:
+                        m_r[fid] = m_r[fid] + 1 
+                    else:
+                        m_r[fid] = 1
+
+                for k in m_r:
+                    self.o['children'][1]['children'].append({'name':k , 'size':m_r[k]})
+                for k in f_r:
+                    self.o['children'][0]['children'].append({'name':k , 'size':f_r[k]})
+                self._output()
+
+    def _output(self):
+        self.write(tornado.escape.json_encode(self.o))
+        self.finish()
 
 class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
