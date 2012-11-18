@@ -29,11 +29,11 @@ text {
     </div>
     <div style="margin-bottom:1em"><a href="/">{{ _("Refresh stream") }}</a></div>
 
-    <div id="body">
+    <div id="body2">
     </div>
      <script type="text/javascript">
-var w = 1280 - 80,
-    h = 800 - 180,
+var w = (1280 - 80)*2,
+    h = 1000 - 180,
     x = d3.scale.linear().range([0, w]),
     y = d3.scale.linear().range([0, h]),
     color = d3.scale.category20c(),
@@ -46,7 +46,7 @@ var treemap = d3.layout.treemap()
     .sticky(true)
     .value(function(d) { return d.size; });
 
-var svg = d3.select("#body").append("div")
+var svg = d3.select("#body2").append("div")
     .attr("class", "chart")
     .style("width", w + "px")
     .style("height", h + "px")
