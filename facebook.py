@@ -98,10 +98,10 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                         m_r[fid] = 1
 
                 for k in m_r:
-                    if m_r[k]>5:
+                    if m_r[k]>1:
                         self.o['children'][1]['children'].append({'name':k , 'size':m_r[k]})
                 for k in f_r:
-                    if f_r[k]>5:
+                    if f_r[k]>1:
                         self.o['children'][0]['children'].append({'name':k , 'size':f_r[k]})
             self._output()
 
