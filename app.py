@@ -29,16 +29,26 @@ import httplib2
 from tornado.options import define, options
 
 define("port", default=os.environ['PORT'], help="run on the given port", type=int)
-define("facebook_api_key", help="your Facebook application API key",
-       default="128422253907704")
-define("facebook_secret", help="your Facebook application secret",
-       default="9599e644b353d5c5607f3201a15614ae")
 
+
+# production env
+"""
+define("facebook_api_key", help="your Facebook application API key",
+       default="423582524399775")
+define("facebook_secret", help="your Facebook application secret",
+       default="f5206c6a86bb594cbd012b3c55e5ae81")
+"""
+# test env
+define("facebook_api_key", help="your Facebook application API key",
+       default="443987802343405")
+define("facebook_secret", help="your Facebook application secret",
+       default="c0ebc99f35e9142694eeeb95a37aeb76")
 
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r"/", MainHandler),
+            (r"/", Main2Handler),
+            (r"/main", MainHandler),
             (r"/locki", FqlReporterHandler),
             (r"/auth/login", AuthLoginHandler),
             (r"/auth/logout", AuthLogoutHandler),
@@ -64,13 +74,18 @@ class BaseHandler(tornado.web.RequestHandler):
         if not user_json: return None
         return tornado.escape.json_decode(user_json)
 
+
+class Main2Handler(BaseHandler):
+    def get(self):
+        self.render("index.html",isLogin=(self.get_current_user()!=None))
+
 class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
         #query = tornado.escape.url_escape('{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
         #        '"like_ids":"SELECT name,sex FROM user WHERE uid IN (SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids))"}')
-        query = '{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
+        query = '{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 500",' + \
                 '"uids":"SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids)",' +\
                 '"like_ids":"SELECT name,sex,uid FROM user WHERE uid IN (SELECT user_id FROM #uids)"}'
         self.facebook_request("/fql", self._handle_result,
@@ -93,18 +108,6 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 else:
                     rr[fid] = 1
 
-                """
-                if p['sex'] == 'female':
-                    if fid in f_r:
-                        f_r[fid] = f_r[fid] + 1 
-                    else:
-                        f_r[fid] = 1 
-                else:
-                    if fid in m_r:
-                        m_r[fid] = m_r[fid] + 1 
-                    else:
-                        m_r[fid] = 1
-                """
             for u in rr:
                 size = rr[u]
                 if size >5:
@@ -116,14 +119,6 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                             self.o['children'][0]['children'].append({'name':user['name'] , 'size':size})        
                         else:
                             self.o['children'][1]['children'].append({'name':user['name'] , 'size':size})
-            """
-            for k in m_r:
-                if m_r[k]>5:
-                    self.o['children'][1]['children'].append({'name':k , 'size':m_r[k]})
-            for k in f_r:
-                if f_r[k]>5:
-                    self.o['children'][0]['children'].append({'name':k , 'size':f_r[k]})
-            """
             self._output()
 
     def _get_user_info(self,user_json,uid):
@@ -153,7 +148,6 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         parsed = urlparse.urlparse(url)
         return urlparse.parse_qs(parsed.query)[key]
 
-#https://graph.facebook.com/801377271?method=GET&format=json&access_token=AAACEd...
     def __get_fb_name(self,id):
         http = httplib2.Http()
         url = 'https://graph.facebook.com/'+id+'?method=GET&format=json&access_token='+self.current_user["access_token"]

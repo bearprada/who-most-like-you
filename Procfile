@@ -1,1 +1,1 @@
-web: python facebook.py
+web: python app.py
