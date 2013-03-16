@@ -32,7 +32,7 @@ define("port", default=os.environ['PORT'], help="run on the given port", type=in
 
 
 # production env
-"""
+
 define("facebook_api_key", help="your Facebook application API key",
        default="423582524399775")
 define("facebook_secret", help="your Facebook application secret",
@@ -43,7 +43,7 @@ define("facebook_api_key", help="your Facebook application API key",
        default="443987802343405")
 define("facebook_secret", help="your Facebook application secret",
        default="c0ebc99f35e9142694eeeb95a37aeb76")
-
+"""
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
