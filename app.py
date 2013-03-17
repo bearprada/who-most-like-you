@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # Copyright 2009 Facebook
 #
@@ -85,13 +86,13 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     def get(self):
         #query = tornado.escape.url_escape('{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
         #        '"like_ids":"SELECT name,sex FROM user WHERE uid IN (SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids))"}')
-        query = '{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 500",' + \
+        query = '{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
                 '"uids":"SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids)",' +\
                 '"like_ids":"SELECT name,sex,uid FROM user WHERE uid IN (SELECT user_id FROM #uids)"}'
         self.facebook_request("/fql", self._handle_result,
                               access_token=self.current_user["access_token"],
                               q=query)
-        self.o = {'name':'likes' , 'children':[ {'name':'female','children':[]} ,  {'name':'male','children':[]}  ]}
+        self.o = {'name':'likes' , 'children':[ {'name':'女性','children':[]} ,  {'name':'男性','children':[]}  ]}
         self.set_header('Content-Type', 'application/json')
 
     def _handle_result(self, r):

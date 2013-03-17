@@ -77,6 +77,7 @@
               <button type="submit" class="btn">Sign in</button>
             </form>
           </div>--><!--/.nav-collapse -->
+          </div>
         </div>
       </div>
     </div>
@@ -145,7 +146,16 @@
         .size([w, h])
         .sticky(true)
         .value(function(d) { return d.size; });
-      var svg = d3.select("#body2").append("div")
+      var svg = null;
+
+      d3.json("locki", function(data) {
+        if(progressBox) progressBox.remove();
+
+        node = root = data;
+        var nodes = treemap.nodes(root).filter(function(d) { return !d.children; });
+        //TODO clean the svg content before insert data
+        $('#body2').empty();
+        svg = d3.select("#body2").append("div")
         .attr("class", "chart")
         .style("width", "100%")
         .style("height", h + "px")
@@ -154,14 +164,6 @@
         .attr("height", h)
         .append("svg:g")
         .attr("transform", "translate(.5,.5)");
-
-      d3.json("locki", function(data) {
-        if(progressBox) progressBox.remove();
-
-        node = root = data;
-        var nodes = treemap.nodes(root).filter(function(d) { return !d.children; });
-        //TODO clean the svg content before insert data
-
         var cell = svg.selectAll("g")
           .data(nodes)
           .enter().append("svg:g")
