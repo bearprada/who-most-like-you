@@ -42,7 +42,7 @@
                                    <link rel="shortcut icon" href="../assets/ico/favicon.png">-->
   </head>
 
-  <body>
+  <body class="root">
 
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
@@ -127,7 +127,7 @@
 
       var progressBox = null;
       $("#btn_start").click(function() {
-          progressBox = new ajaxLoader($('.result'));
+          progressBox = new ajaxLoader($('.root'));
           showresult();
       }); 
 
