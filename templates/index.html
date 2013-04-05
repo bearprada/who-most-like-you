@@ -10,8 +10,6 @@
 
     <!-- Le styles -->
     <link href="static/css/bootstrap.min.css" rel="stylesheet">
-<!--    <link rel="stylesheet" href="{{ static_url("d3/treemap_zoom.css") }}" type="text/css"/>-->
-
     <style type="text/css">
       body {
         padding-top: 60px;
@@ -109,8 +107,19 @@
 
       <hr>
       <footer>
-        <p>&copy; Company 2013</p>
+        <div class="fb-like-box" data-href="http://www.facebook.com/pages/Prada-Lab/140352902804510" data-width="250" data-show-faces="false" data-stream="false" data-header="false"></div>
+        <p>&copy; Prada Lab 2013</p>
       </footer>
+      <div id="fb-root"></div>
+
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/zh_TW/all.js#xfbml=1&appId=354705107982325";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
 
     </div> <!-- /container -->
 
@@ -122,6 +131,7 @@
     <script type="text/javascript" src="{{static_url("d3/d3.js")}}"></script>
     <script type="text/javascript" src="{{static_url("d3/d3.layout.js")}}"></script>
     <script type="text/javascript" id="loader" src="{{static_url("js/script.js")}}" ></script>
+
 
     <script>
 
