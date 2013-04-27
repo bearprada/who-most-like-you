@@ -37,7 +37,7 @@ define("port", default=os.environ['PORT'], help="run on the given port", type=in
 define("facebook_api_key", help="your Facebook application API key",
        default="423582524399775")
 define("facebook_secret", help="your Facebook application secret",
-       default="f5206c6a86bb594cbd012b3c55e5ae81")
+       default="c535d19c6d09c007e17aaa3fdc5768c4")
 """
 # test env
 define("facebook_api_key", help="your Facebook application API key",
