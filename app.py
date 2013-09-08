@@ -35,16 +35,10 @@ define("port", default=os.environ['PORT'], help="run on the given port", type=in
 # production env
 
 define("facebook_api_key", help="your Facebook application API key",
-       default="423582524399775")
+       default="YOUR_FACEBOOK_API_KEY")
 define("facebook_secret", help="your Facebook application secret",
-       default="c535d19c6d09c007e17aaa3fdc5768c4")
-"""
-# test env
-define("facebook_api_key", help="your Facebook application API key",
-       default="443987802343405")
-define("facebook_secret", help="your Facebook application secret",
-       default="c0ebc99f35e9142694eeeb95a37aeb76")
-"""
+       default="YOUR_FACEBOOK_API_SECRET")
+
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
@@ -84,8 +78,6 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
-        #query = tornado.escape.url_escape('{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
-        #        '"like_ids":"SELECT name,sex FROM user WHERE uid IN (SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids))"}')
         query = '{"post_ids":"SELECT post_id FROM stream WHERE source_id=me() AND likes.count>0 LIMIT 5000",' + \
                 '"uids":"SELECT user_id FROM like WHERE post_id IN (SELECT post_id FROM #post_ids)",' +\
                 '"like_ids":"SELECT name,sex,uid FROM user WHERE uid IN (SELECT user_id FROM #uids)"}'
@@ -162,8 +154,6 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
             j['name'] = self.__get_fb_name(j['id'])
 
     def _output(self):
-        # todo id transfer to name 
-        #self._trans_name(self.o)
         self.write(tornado.escape.json_encode(self.o))
         self.finish()
 
