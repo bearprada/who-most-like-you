@@ -26,10 +26,12 @@ import json
 import urlparse
 import urllib
 import httplib2
+import os
+import random
 
 from tornado.options import define, options
 
-define("port", default=os.environ['PORT'], help="run on the given port", type=int)
+#define("port", default=os.environ['PORT'], help="run on the given port", type=int)
 
 
 # production env
@@ -44,6 +46,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", Main2Handler),
             (r"/main", MainHandler),
+            (r"/chat", ChatHandler),
             (r"/locki", FqlReporterHandler),
             (r"/auth/login", AuthLoginHandler),
             (r"/auth/logout", AuthLogoutHandler),
@@ -69,6 +72,16 @@ class BaseHandler(tornado.web.RequestHandler):
         if not user_json: return None
         return tornado.escape.json_decode(user_json)
 
+class ChatHandler(BaseHandler):
+    def get(self):
+        seed = random.randint(0, 100000)
+        len = random.randint(10, 50)
+        q = self.get_argument("q")
+        # mode 1, 2 ,3 ,4
+        cmd = "cd /Users/prada/workspace_playground/char-rnn/; th sample.lua cv/mica240.00_3.7589.t7 -seed %d -length %d -primetext %s -temperature 0.2" % (seed, len, q)
+        # cmd = "cd /Users/prada/workspace_playground/char-rnn/; th sample.lua cv/obama_rnn.t7 -seed %d -length %d -primetext %s -temperature 0.2" % (seed, len, q)
+        self.write(str(os.popen(cmd).read()))
+        self.finish()
 
 class Main2Handler(BaseHandler):
     def get(self):
@@ -109,7 +122,7 @@ class FqlReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                         pass
                     else:
                         if user['sex'] == 'female':
-                            self.o['children'][0]['children'].append({'name':user['name'] , 'size':size})        
+                            self.o['children'][0]['children'].append({'name':user['name'] , 'size':size})
                         else:
                             self.o['children'][1]['children'].append({'name':user['name'] , 'size':size})
             self._output()
@@ -128,7 +141,7 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
-        print "[debug] user = " + str(self.current_user) 
+        print "[debug] user = " + str(self.current_user)
         self.facebook_request("/me/posts", self._on_like,
                               access_token=self.current_user["access_token"])
         self.o = {'name':'likes' , 'children':[]}
@@ -180,11 +193,11 @@ class ReporterHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
                 self.count = self.count+1
 
                 next = likes["paging"].get('next',None)
-                print "[PAGING] next = " + next 
+                print "[PAGING] next = " + next
                 if next != None:
                     http = httplib2.Http()
                     response, content = http.request(next, 'GET')
-                    print "[PAGING] result " + str(response) 
+                    print "[PAGING] result " + str(response)
                     self._on_like(tornado.escape.json_decode(content))
                 else:
                     self._output()
@@ -193,7 +206,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
     @tornado.web.authenticated
     @tornado.web.asynchronous
     def get(self):
-        #print "[debug] user = " + str(self.current_user) 
+        #print "[debug] user = " + str(self.current_user)
         #self.facebook_request("/me/home", self._on_stream,
         self.facebook_request("/me/posts", self.async_callback(self._on_like),
                               access_token=self.current_user["access_token"])
@@ -204,7 +217,7 @@ class MainHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         if likes is None:
             self.redirect("/auth/login")
             return
-        self.render("likes.html") 
+        self.render("likes.html")
 
     def _on_stream(self, stream):
         if stream is None:
@@ -231,7 +244,7 @@ class AuthLoginHandler(BaseHandler, tornado.auth.FacebookGraphMixin):
         self.authorize_redirect(redirect_uri=my_url,
                                 client_id=self.settings["facebook_api_key"],
                                 extra_params={"scope": "read_stream"})
-    
+
     def _on_auth(self, user):
         if not user:
             raise tornado.web.HTTPError(500, "Facebook auth failed")
@@ -253,7 +266,7 @@ class PostModule(tornado.web.UIModule):
 def main():
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application())
-    http_server.listen(options.port)
+    http_server.listen(8080)
     tornado.ioloop.IOLoop.instance().start()
 
 
